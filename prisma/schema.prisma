@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator nestjsDto {
+  provider                        = "prisma-generator-nestjs-dto"
+  output                          = "../src/generated"
+  outputToNestJsResourceStructure = "false"
+  flatResourceStructure           = "false"
+  exportRelationModifierClasses   = "true"
+  reExport                        = "true"
+  dtoSuffix                       = "Dto"
+  entityPrefix                    = ""
+  entitySuffix                    = "Entity"
+  classValidation                 = "true"
+  fileNamingStyle                 = "kebab"
+  noDependencies                  = "false"
+  outputType                      = "class"
+  prettier                        = "true"
+  includeRelationIds              = "true"
+}
+
+model MetricType {
+  id   Int    @id @default(autoincrement())
+  name String
+
+  units Unit[]
+
+  @@unique([name], name: "uq_metric_type_name")
+  @@map("metric_type")
+}
+
+model Unit {
+  id Int @id @default(autoincrement())
+
+  metricTypeId    Int     @map("metric_type_id")
+  name            String
+  symbol          String
+  isBase          Boolean @map("is_base")
+  toBaseFormula   String  @map("to_base_formula")
+  fromBaseFormula String  @map("from_base_formula")
+
+  metricType   MetricType    @relation(fields: [metricTypeId], references: [id])
+  metricValues MetricValue[]
+
+  @@unique([metricTypeId, name], name: "uq_unit_metric_type_id_name")
+  @@unique([metricTypeId, symbol], name: "uq_unit_metric_type_id_symbol")
+  @@map("unit")
+}
+
+model MetricValue {
+  id Int @id @default(autoincrement())
+
+  recordedAt DateTime @map("recorded_at") @db.Timestamp()
+  baseValue  Float    @map("base_value")
+  baseUnitId Int      @map("base_unit_id")
+
+  baseUnit Unit @relation(fields: [baseUnitId], references: [id])
+
+  @@index([recordedAt])
+  @@map("metric_value")
+}
