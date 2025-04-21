@@ -23,6 +23,8 @@ For second time, just need to run the: yarn start:dev
 1. One Metric Type must have one base Unit (flag is_base in Unit table).
 2. The fromBaseFormula and toBaseFormula must be valid JavaScript expressions (System is using eval() function). 
 
-## Improvements
+## Improvements/ Enhancements
 1. We can cache the Metric Type and Unit data in Redis to improve the performance.
 2. We need to convert the value of the metric from base to display unit and reverse carefully, there is might be an mismatch in the rounding calculation.
+3. The timezone of the metric value and the chart.
+4. Manage the version of the metric value incase some of metric value can be changed frequently (such as Currency).
